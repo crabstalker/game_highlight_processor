@@ -85,3 +85,50 @@ Create an IAM Role or User:
     For the Use Case, enter "S3" and click "Next".
     Add permissions: AmazonS3FullAccess, MediaConvertFullAccess, and AmazonEC2ContainerRegistryFullAccess.
     Name the role "HighlightProcessorRole" and create it.
+
+Edit the trust policy to:
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "ec2.amazonaws.com",
+          "ecs-tasks.amazonaws.com",
+          "mediaconvert.amazonaws.com"
+        ],
+        "AWS": "arn:aws:iam:::user/"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+
+Update the env.listfile with the following:
+RapidAPI_KEY=your_rapidapi_key
+AWS_ACCESS_KEY_ID=your_aws_access_key_id
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+S3_BUCKET_NAME=your_s3_bucket_name
+MEDIACONVERT_ENDPOINT=https://your_mediaconvert_endpoint.amazonaws.com
+MEDIACONVERT_ROLE_ARN=arn:aws:iam::your_account_id:role/HighlightProcessorRole
+
+Secure env.listfile:
+chmod 600 .env
+
+Build and Run the Docker Container locally:
+docker build -t highlight-processor .
+docker run --env-file env.list highlight-processor
+
+This will run fetch.py, process_one_video.py, and mediaconvert_process.py. The following files should be saved in your S3 bucket:
+   Confirm there is a video uploaded to s3:///videos/first_video.mp4.
+   Confirm there is a video uploaded to s3:///processed_videos/.
+
+What We Learned
+Working with Docker and AWS Services.
+ Identity Access Management (IAM) and least privilege.
+ Enhancing media quality.
+
+
+Feel free to make any further modifications. Let me know if there are any specific parts you'd like to tweak or improve! Happy coding! 🎉
+
